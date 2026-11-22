@@ -1,0 +1,795 @@
+<!DOCTYPE html><html lang="en" class="scroll-smooth"><head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Abdullah.dev — 3D Creative Developer Portfolio</title>
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <script id="tailwind-config">/** @type {import('tailwindcss').Config} */
+globalThis.tailwind = globalThis.tailwind || {};
+globalThis.tailwind.config = {
+  darkMode: 'class',
+  theme: {
+    extend: {
+      colors: {
+        'primary': '#D3BBFF',
+        'on-primary': '#3F008D',
+        'primary-container': '#6D28D9',
+        'on-primary-container': '#FFFFFF',
+        'secondary': '#C7AAFF',
+        'on-secondary': '#3A206B',
+        'secondary-container': '#3A206B',
+        'on-secondary-container': '#EBDDFF',
+        'tertiary': '#FFB68B',
+        'on-tertiary': '#522300',
+        'error': '#FFB4AB',
+        'on-error': '#690005',
+        'background': '#15121B',
+        'on-background': '#E8E0EE',
+        'surface': '#15121B',
+        'surface-container-lowest': '#100D16',
+        'surface-container-low': '#1D1A24',
+        'surface-container': '#221E28',
+        'surface-container-high': '#2C2833',
+        'surface-container-highest': '#37333E',
+        'on-surface': '#E8E0EE',
+        'on-surface-variant': '#CCC3D7',
+        'outline': '#958DA1',
+        'outline-variant': '#4A4455',
+      },
+      borderRadius: {
+        'sm': '6px',
+        'DEFAULT': '12px',
+        'md': '16px',
+        'lg': '20px',
+        'xl': '28px',
+        'full': '9999px',
+      },
+      spacing: {
+        'gutter-xs': '4px',
+        'gutter-sm': '8px',
+        'gutter-md': '16px',
+        'gutter-lg': '24px',
+        'gutter-xl': '32px',
+        'section': '64px',
+        'page-margin': '32px',
+      },
+      fontFamily: {
+        'display': ['"Space Grotesk"', 'sans-serif'],
+        'headline': ['"Space Grotesk"', 'sans-serif'],
+        'title': ['"Space Grotesk"', 'sans-serif'],
+        'body': ['"Ubuntu"', 'sans-serif'],
+        'label': ['"Space Grotesk"', 'sans-serif'],
+      },
+      fontSize: {
+        'display-lg': ['56px', { lineHeight: '64px', letterSpacing: '-1.2px', fontWeight: '700' }],
+        'display-lg-mobile': ['32px', { lineHeight: '38px', letterSpacing: '-0.5px', fontWeight: '700' }],
+        'display-md': ['40px', { lineHeight: '48px', letterSpacing: '-0.8px', fontWeight: '700' }],
+        'display-md-mobile': ['28px', { lineHeight: '34px', letterSpacing: '-0.4px', fontWeight: '700' }],
+        'headline-lg': ['34px', { lineHeight: '42px', letterSpacing: '-0.4px', fontWeight: '600' }],
+        'headline-lg-mobile': ['24px', { lineHeight: '30px', letterSpacing: '-0.2px', fontWeight: '600' }],
+        'headline-md': ['24px', { lineHeight: '30px', letterSpacing: '-0.2px', fontWeight: '600' }],
+        'title-lg': ['20px', { lineHeight: '28px', letterSpacing: '0px', fontWeight: '600' }],
+        'body-lg': ['18px', { lineHeight: '28px', letterSpacing: '0px', fontWeight: '400' }],
+        'body-md': ['16px', { lineHeight: '24px', letterSpacing: '0px', fontWeight: '400' }],
+        'label-lg': ['14px', { lineHeight: '20px', letterSpacing: '0.2px', fontWeight: '600' }],
+        'label-md': ['12px', { lineHeight: '16px', letterSpacing: '0.4px', fontWeight: '400' }],
+      },
+      transitionDuration: {
+        'state-change': '150ms',
+        'card-tilt': '220ms',
+        'surface-enter': '300ms',
+      },
+      transitionDelay: {
+        'state-change': '0ms',
+        'card-tilt': '0ms',
+        'surface-enter': '0ms',
+      },
+      transitionTimingFunction: {
+        'state-change': 'ease-out',
+        'card-tilt': 'cubic-bezier(0.2, 0, 0, 1)',
+        'surface-enter': 'cubic-bezier(0.2, 0, 0, 1)',
+      },
+    },
+  },
+};
+if (typeof module !== 'undefined') module.exports = globalThis.tailwind.config;
+</script>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&amp;family=Ubuntu:wght@400;500;700&amp;family=Space+Mono:wght@400;700&amp;display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=block" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <style>
+    .material-symbols-outlined, .material-symbols-rounded, .material-symbols-sharp, .material-icons {
+      display: inline-block;
+      width: 1em;
+      height: 1em;
+      line-height: 1 !important;
+      box-sizing: content-box;
+      overflow: hidden;
+      white-space: nowrap;
+      direction: ltr;
+      vertical-align: middle;
+    }
+    .tilt-stage {
+      perspective: 1000px;
+    }
+    .tilt-card {
+      transform-style: preserve-3d;
+      will-change: transform;
+    }
+    .tilt-card-inner {
+      transform: translateZ(20px);
+    }
+  </style>
+</head>
+<body class="bg-surface text-on-surface antialiased selection:bg-primary-container selection:text-on-primary-container">
+  <div class="min-h-[1024px] flex flex-col" data-stitch-vh="min-h-[1024px]===min-h-screen">
+
+    <!-- Top Navigation -->
+    <header class="sticky top-0 z-40 bg-surface/95 border-b border-outline-variant">
+      <div class="max-w-7xl mx-auto px-gutter-lg md:px-page-margin py-gutter-md flex items-center justify-between gap-gutter-md">
+        <a href="#hero" class="inline-flex items-center gap-gutter-sm text-on-surface hover:text-primary transition-colors duration-state-change ease-state-change">
+          <span class="inline-flex items-center justify-center w-9 h-9 rounded bg-primary-container text-on-primary-container font-headline text-title-lg">
+            A.
+          </span>
+          <span class="font-headline text-title-lg text-on-surface" data-design-text-token="title-lg">Abdullah.dev</span>
+        </a>
+
+        <nav aria-label="Primary Navigation" class="hidden md:flex items-center gap-gutter-xl">
+          <a href="#about" class="font-label text-label-lg text-on-surface-variant hover:text-primary transition-colors duration-state-change ease-state-change" data-design-text-token="label-lg">About</a>
+          <a href="#skills" class="font-label text-label-lg text-on-surface-variant hover:text-primary transition-colors duration-state-change ease-state-change" data-design-text-token="label-lg">Skills</a>
+          <a href="#work" class="font-label text-label-lg text-on-surface-variant hover:text-primary transition-colors duration-state-change ease-state-change" data-design-text-token="label-lg">Work</a>
+        </nav>
+
+        <div class="flex items-center gap-gutter-sm">
+          <a href="#contact" data-component-id="button-primary" data-component-type="button" data-component-variant="primary" class="inline-flex items-center justify-center px-gutter-lg py-2.5 rounded-full bg-primary-container text-on-primary-container font-label text-label-lg transition-transform duration-state-change ease-state-change hover:scale-[1.02] hover:bg-primary hover:text-on-primary focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary active:scale-[0.98]">
+            <span data-design-text-token="label-lg">Let&#39;s Talk</span>
+          </a>
+        </div>
+      </div>
+    </header>
+
+    <main class="flex-1">
+
+      <!-- 3D Interactive Hero Section -->
+      <section id="hero" class="max-w-7xl mx-auto px-gutter-lg md:px-page-margin py-section">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-gutter-xl items-center">
+
+          <!-- Hero Copy -->
+          <div class="lg:col-span-6 flex flex-col items-start gap-gutter-lg">
+            <button type="button" data-component-id="chip-with-icon" data-component-type="chip" data-component-variant="with-icon" onclick="document.getElementById(&#39;contact&#39;).scrollIntoView({behavior:&#39;smooth&#39;})" class="inline-flex items-center gap-gutter-xs px-gutter-md py-1.5 rounded-full bg-surface-container border border-outline-variant text-tertiary font-label text-label-md hover:border-tertiary transition-colors duration-state-change ease-state-change">
+              <span class="material-symbols-outlined text-label-lg" aria-hidden="true">bolt</span>
+              <span data-design-text-token="label-md">Available for Opportunities</span>
+            </button>
+
+            <h1 class="font-display text-display-lg-mobile md:text-display-lg text-on-surface text-balance" data-design-text-token="display-lg">
+              Hi, I&#39;m Abdullah. I build for the web.
+            </h1>
+
+            <p class="font-body text-body-lg text-on-surface-variant max-w-prose text-pretty" data-design-text-token="body-lg">
+              A student developer crafting clean, responsive and accessible digital experiences with HTML, CSS and JavaScript — now upgraded with interactive 3D spatial depth.
+            </p>
+
+            <div class="flex flex-wrap items-center gap-gutter-md">
+              <a href="#work" data-component-id="button-with-icon" data-component-type="button" data-component-variant="with-icon" class="inline-flex items-center justify-center gap-gutter-sm px-gutter-lg py-3 rounded-full bg-primary-container text-on-primary-container font-label text-label-lg transition-transform duration-state-change ease-state-change hover:scale-[1.02] hover:bg-primary hover:text-on-primary focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary active:scale-[0.98]">
+                <span class="material-symbols-outlined text-title-lg" aria-hidden="true">rocket_launch</span>
+                <span data-design-text-token="label-lg">Explore My Work</span>
+              </a>
+
+              <a href="#contact" data-component-id="button-secondary" data-component-type="button" data-component-variant="secondary" class="inline-flex items-center justify-center px-gutter-lg py-3 rounded-full bg-surface-container-high border border-outline-variant text-on-surface font-label text-label-lg transition-colors duration-state-change ease-state-change hover:border-primary hover:text-primary focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary active:scale-[0.98]">
+                <span data-design-text-token="label-lg">Get in Touch</span>
+              </a>
+            </div>
+
+            <!-- Identity & Focus Metrics -->
+            <div class="grid grid-cols-3 gap-gutter-lg pt-gutter-md border-t border-outline-variant w-full max-w-md">
+              <div class="flex flex-col gap-gutter-xs">
+                <span class="font-headline text-headline-md text-primary" data-design-text-token="headline-md">Student</span>
+                <span class="font-label text-label-md text-outline" data-design-text-token="label-md">Learning &amp; growing</span>
+              </div>
+              <div class="flex flex-col gap-gutter-xs">
+                <span class="font-headline text-headline-md text-on-surface" data-design-text-token="headline-md">Front-end</span>
+                <span class="font-label text-label-md text-outline" data-design-text-token="label-md">Current focus</span>
+              </div>
+              <div class="flex flex-col gap-gutter-xs">
+                <span class="font-headline text-headline-md text-tertiary tabular-nums" data-design-text-token="headline-md">∞</span>
+                <span class="font-label text-label-md text-outline" data-design-text-token="label-md">Curiosity to learn</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Interactive 3D WebGL Stage + Floating abdullah.js -->
+          <div class="lg:col-span-6 flex flex-col gap-gutter-md">
+            <div class="rounded-xl bg-surface-container-low border border-outline-variant p-gutter-md flex flex-col gap-gutter-md">
+              <div class="flex items-center justify-between gap-gutter-sm px-gutter-xs">
+                <div class="flex items-center gap-gutter-sm">
+                  <span class="material-symbols-outlined text-title-lg text-primary" aria-hidden="true">view_in_ar</span>
+                  <span class="font-label text-label-md text-on-surface-variant" data-design-text-token="label-md">ABDULLAH.JS · DRAG TO ORBIT 3D</span>
+                </div>
+                <button id="reset-3d-btn" data-component-id="button-icon" data-component-type="button" data-component-variant="icon" type="button" aria-label="Reset 3D camera" class="inline-flex items-center justify-center w-9 h-9 rounded-full bg-surface-container-high border border-outline-variant text-on-surface transition-colors duration-state-change ease-state-change hover:border-primary hover:text-primary focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary">
+                  <span class="material-symbols-outlined text-label-lg" aria-hidden="true">3d_rotation</span>
+                </button>
+              </div>
+
+              <div class="relative w-full min-h-[340px] rounded-lg bg-surface-container-lowest border border-outline-variant overflow-hidden cursor-grab active:cursor-grabbing">
+                <canvas id="hero-3d-canvas" class="w-full h-[340px] block"></canvas>
+
+                <!-- Floating Code Card Overlay -->
+                <div class="absolute bottom-3 left-3 right-3 sm:right-auto sm:w-72 rounded bg-surface-container/95 border border-outline-variant p-gutter-md pointer-events-none">
+                  <div class="flex items-center justify-between mb-gutter-xs">
+                    <span class="font-label text-label-md text-primary" data-design-text-token="label-md">abdullah.js</span>
+                    <span class="font-label text-label-md text-tertiary" data-design-text-token="label-md">live</span>
+                  </div>
+                  <pre class="font-label text-label-md text-on-surface-variant overflow-x-auto leading-relaxed"><code>const developer = {
+  name: &#34;Abdullah&#34;,
+  role: &#34;Student&#34;,
+  focus: &#34;Front-end&#34;,
+  learning: true
+};</code></pre>
+                </div>
+              </div>
+
+              <!-- 3D Mode Switcher -->
+              <div class="flex flex-wrap items-center justify-between gap-gutter-sm px-gutter-xs">
+                <div class="flex flex-wrap items-center gap-gutter-xs" role="group" aria-label="3D Render Mode">
+                  <button type="button" data-render-mode="wireframe" aria-pressed="true" class="mode-btn inline-flex items-center px-gutter-md py-1.5 rounded-full bg-secondary-container border border-primary text-on-secondary-container font-label text-label-md transition-colors duration-state-change ease-state-change">
+                    <span data-design-text-token="label-md">Wireframe</span>
+                  </button>
+                  <button type="button" data-render-mode="solid" aria-pressed="false" class="mode-btn inline-flex items-center px-gutter-md py-1.5 rounded-full bg-surface-container-high border border-outline-variant text-on-surface-variant font-label text-label-md transition-colors duration-state-change ease-state-change hover:border-primary hover:text-primary">
+                    <span data-design-text-token="label-md">Solid Mesh</span>
+                  </button>
+                  <button type="button" data-render-mode="particles" aria-pressed="false" class="mode-btn inline-flex items-center px-gutter-md py-1.5 rounded-full bg-surface-container-high border border-outline-variant text-on-surface-variant font-label text-label-md transition-colors duration-state-change ease-state-change hover:border-primary hover:text-primary">
+                    <span data-design-text-token="label-md">Orbital Cloud</span>
+                  </button>
+                </div>
+                <span id="render-fps-label" class="font-label text-label-md text-outline tabular-nums" data-design-text-token="label-md">THREE.JS · ACTIVE</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- About Section -->
+      <section id="about" class="max-w-7xl mx-auto px-gutter-lg md:px-page-margin py-section border-t border-outline-variant">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-gutter-xl items-center">
+          <div class="lg:col-span-5 flex flex-col gap-gutter-sm">
+            <span class="font-label text-label-md text-primary" data-design-text-token="label-md">ABOUT</span>
+            <h2 class="font-display text-display-md-mobile md:text-display-md text-on-surface text-balance" data-design-text-token="display-md">
+              Curious mind. Creative builder.
+            </h2>
+          </div>
+          <div class="lg:col-span-7 flex flex-col gap-gutter-lg">
+            <p class="font-body text-body-lg text-on-surface-variant max-w-prose text-pretty" data-design-text-token="body-lg">
+              I&#39;m Abdullah, a student passionate about turning ideas into fast and meaningful web experiences. I focus on writing semantic code and creating interfaces that feel natural on every screen.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Skills Section -->
+      <section id="skills" class="max-w-7xl mx-auto px-gutter-lg md:px-page-margin py-section border-t border-outline-variant">
+        <div class="flex flex-col gap-gutter-sm mb-gutter-xl">
+          <span class="font-label text-label-md text-primary" data-design-text-token="label-md">SKILLS</span>
+          <h2 class="font-display text-display-md-mobile md:text-display-md text-on-surface" data-design-text-token="display-md">
+            What I work with.
+          </h2>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-gutter-lg items-stretch tilt-stage">
+          <article data-tilt-card data-component-id="card-elevated" data-component-type="card" data-component-variant="elevated" class="tilt-card h-full rounded-lg bg-surface-container border border-outline-variant p-gutter-lg flex flex-col gap-gutter-md transition-transform duration-card-tilt ease-card-tilt hover:border-primary">
+            <div class="flex items-center justify-between tilt-card-inner">
+              <span class="inline-flex items-center justify-center w-10 h-10 rounded bg-primary-container text-on-primary-container">
+                <span class="material-symbols-outlined text-title-lg" aria-hidden="true">code</span>
+              </span>
+              <span class="font-label text-label-md text-outline" data-design-text-token="label-md">HTML5</span>
+            </div>
+            <div class="flex flex-col gap-gutter-xs tilt-card-inner">
+              <h3 class="font-title text-title-lg text-on-surface" data-design-text-token="title-lg">HTML5</h3>
+              <p class="font-body text-body-md text-on-surface-variant" data-design-text-token="body-md">
+                Semantic, structured and accessible markup.
+              </p>
+            </div>
+          </article>
+
+          <article data-tilt-card data-component-id="card-elevated" data-component-type="card" data-component-variant="elevated" class="tilt-card h-full rounded-lg bg-surface-container border border-outline-variant p-gutter-lg flex flex-col gap-gutter-md transition-transform duration-card-tilt ease-card-tilt hover:border-primary">
+            <div class="flex items-center justify-between tilt-card-inner">
+              <span class="inline-flex items-center justify-center w-10 h-10 rounded bg-secondary-container text-on-secondary-container">
+                <span class="material-symbols-outlined text-title-lg" aria-hidden="true">grid_view</span>
+              </span>
+              <span class="font-label text-label-md text-outline" data-design-text-token="label-md">CSS3</span>
+            </div>
+            <div class="flex flex-col gap-gutter-xs tilt-card-inner">
+              <h3 class="font-title text-title-lg text-on-surface" data-design-text-token="title-lg">CSS3</h3>
+              <p class="font-body text-body-md text-on-surface-variant" data-design-text-token="body-md">
+                Responsive layouts with Flexbox and Grid.
+              </p>
+            </div>
+          </article>
+
+          <article data-tilt-card data-component-id="card-elevated" data-component-type="card" data-component-variant="elevated" class="tilt-card h-full rounded-lg bg-surface-container border border-outline-variant p-gutter-lg flex flex-col gap-gutter-md transition-transform duration-card-tilt ease-card-tilt hover:border-primary">
+            <div class="flex items-center justify-between tilt-card-inner">
+              <span class="inline-flex items-center justify-center w-10 h-10 rounded bg-surface-container-high border border-outline-variant text-tertiary">
+                <span class="material-symbols-outlined text-title-lg" aria-hidden="true">javascript</span>
+              </span>
+              <span class="font-label text-label-md text-outline" data-design-text-token="label-md">JS</span>
+            </div>
+            <div class="flex flex-col gap-gutter-xs tilt-card-inner">
+              <h3 class="font-title text-title-lg text-on-surface" data-design-text-token="title-lg">JavaScript</h3>
+              <p class="font-body text-body-md text-on-surface-variant" data-design-text-token="body-md">
+                DOM manipulation and useful interactions.
+              </p>
+            </div>
+          </article>
+
+          <article data-tilt-card data-component-id="card-elevated" data-component-type="card" data-component-variant="elevated" class="tilt-card h-full rounded-lg bg-surface-container border border-outline-variant p-gutter-lg flex flex-col gap-gutter-md transition-transform duration-card-tilt ease-card-tilt hover:border-primary">
+            <div class="flex items-center justify-between tilt-card-inner">
+              <span class="inline-flex items-center justify-center w-10 h-10 rounded bg-primary-container text-on-primary-container">
+                <span class="material-symbols-outlined text-title-lg" aria-hidden="true">commit</span>
+              </span>
+              <span class="font-label text-label-md text-outline" data-design-text-token="label-md">GIT</span>
+            </div>
+            <div class="flex flex-col gap-gutter-xs tilt-card-inner">
+              <h3 class="font-title text-title-lg text-on-surface" data-design-text-token="title-lg">Git &amp; GitHub</h3>
+              <p class="font-body text-body-md text-on-surface-variant" data-design-text-token="body-md">
+                Version control and collaborative workflows.
+              </p>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <!-- Selected Projects Section -->
+      <section id="work" class="max-w-7xl mx-auto px-gutter-lg md:px-page-margin py-section border-t border-outline-variant">
+        <div class="flex flex-col md:flex-row md:items-end justify-between gap-gutter-lg mb-gutter-xl">
+          <div class="flex flex-col gap-gutter-sm">
+            <span class="font-label text-label-md text-primary" data-design-text-token="label-md">WORK</span>
+            <h2 class="font-display text-display-md-mobile md:text-display-md text-on-surface" data-design-text-token="display-md">
+              Selected projects.
+            </h2>
+            <p class="font-body text-body-md text-on-surface-variant max-w-prose" data-design-text-token="body-md">
+              Hover any project card for 3D spatial tilt, or inspect its build details.
+            </p>
+          </div>
+
+          <!-- Filter Chips -->
+          <div class="flex flex-wrap items-center gap-gutter-sm" role="group" aria-label="Filter projects">
+            <button type="button" data-filter="all" data-component-id="chip-filter-selected" data-component-type="chip" data-component-variant="filter" aria-pressed="true" class="filter-chip inline-flex items-center px-gutter-md py-1.5 rounded-full bg-secondary-container border border-primary text-on-secondary-container font-label text-label-md transition-colors duration-state-change ease-state-change">
+              <span data-design-text-token="label-md">All Projects</span>
+            </button>
+            <button type="button" data-filter="featured" data-component-id="chip-action" data-component-type="chip" data-component-variant="action" aria-pressed="false" class="filter-chip inline-flex items-center px-gutter-md py-1.5 rounded-full bg-surface-container-high border border-outline-variant text-on-surface-variant font-label text-label-md transition-colors duration-state-change ease-state-change hover:border-primary hover:text-primary">
+              <span data-design-text-token="label-md">Featured</span>
+            </button>
+            <button type="button" data-filter="progress" data-component-id="chip-action" data-component-type="chip" data-component-variant="action" aria-pressed="false" class="filter-chip inline-flex items-center px-gutter-md py-1.5 rounded-full bg-surface-container-high border border-outline-variant text-on-surface-variant font-label text-label-md transition-colors duration-state-change ease-state-change hover:border-primary hover:text-primary">
+              <span data-design-text-token="label-md">In Progress</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- 3D Tilt Project Grid -->
+        <div id="projects-grid" class="grid grid-cols-1 md:grid-cols-2 gap-gutter-lg items-stretch tilt-stage">
+
+          <!-- Project 1 -->
+          <article data-category="featured" data-tilt-card data-component-id="card-action" data-component-type="card" data-component-variant="action" class="project-card tilt-card h-full rounded-lg bg-surface-container border border-outline-variant p-gutter-lg flex flex-col justify-between gap-gutter-md transition-transform duration-card-tilt ease-card-tilt hover:border-primary">
+            <div class="flex flex-col gap-gutter-md tilt-card-inner">
+              <div class="rounded overflow-hidden border border-outline-variant bg-surface-container-lowest">
+                <img src="https://lh3.googleusercontent.com/aida/ALJJyrCrFfdiOe7LYayzIfo3kFlWP7L3LjLFWfba9zWpLjhrYKF8LEEivs9FWU8Qo-KD-GxGIT39-8aJO5-hIe04DxcqybgmeskTg8xc1NLdXv9dBrEElsBp-DFJ2gEY5aiAWFUz_XCd8AGI0yx61kCTPBtvLsJlWbNiyytSxj0KQnAHkxEvL8SDJTbTv7nYb244B3PZ6YqdJ_cQ06w8OwxL_Az8gzOiCblhgL60-WOuxpkVzF7JI9MX6R1s4UkpSp3PbgEKEIc" alt="Developer Portfolio 3D preview" class="w-full h-56 object-cover">
+              </div>
+              <header class="flex flex-col gap-gutter-xs">
+                <span class="font-label text-label-md text-tertiary" data-design-text-token="label-md">FEATURED / PERSONAL</span>
+                <h3 class="font-title text-title-lg text-on-surface" data-design-text-token="title-lg">Developer Portfolio</h3>
+                <p class="font-label text-label-md text-secondary" data-design-text-token="label-md">HTML · CSS · JavaScript · Three.js</p>
+              </header>
+              <p class="font-body text-body-md text-on-surface-variant text-pretty" data-design-text-token="body-md">
+                Personal developer portfolio crafted with semantic HTML, responsive CSS Grid, interactive JavaScript, and a 3D WebGL hero stage.
+              </p>
+            </div>
+            <footer class="flex items-center justify-between gap-gutter-sm pt-gutter-md border-t border-outline-variant">
+              <button type="button" onclick="openProjectModal(&#39;Developer Portfolio&#39;, &#39;HTML · CSS · JavaScript · Three.js&#39;, &#39;Built to showcase clean front-end engineering with semantic markup, responsive layout grids, and interactive 3D WebGL visuals.&#39;, &#39;Featured / Personal&#39;)" class="inline-flex items-center gap-gutter-xs px-gutter-md py-2 rounded-full bg-primary-container text-on-primary-container font-label text-label-lg hover:bg-primary hover:text-on-primary transition-colors duration-state-change ease-state-change">
+                <span data-design-text-token="label-lg">Inspect Project</span>
+              </button>
+              <span class="font-label text-label-md text-outline tabular-nums" data-design-text-token="label-md">2026</span>
+            </footer>
+          </article>
+
+          <!-- Project 2 -->
+          <article data-category="progress" data-tilt-card data-component-id="card-action" data-component-type="card" data-component-variant="action" class="project-card tilt-card h-full rounded-lg bg-surface-container border border-outline-variant p-gutter-lg flex flex-col justify-between gap-gutter-md transition-transform duration-card-tilt ease-card-tilt hover:border-primary">
+            <div class="flex flex-col gap-gutter-md tilt-card-inner">
+              <div class="rounded overflow-hidden border border-outline-variant bg-surface-container-lowest">
+                <img src="https://lh3.googleusercontent.com/aida/ALJJyrCcd6edbkJPTDDJofYS3Qi8GPHiH1jWunBqZF31sJX4a9Qo7KunLLTf2sFNsgkTQQk0Juk4qRKQ_dDyYYkHBRKQFd0Qz5rtLxoV8HPOfm_zEktsJ_u7evsySlxX0UVgb8EUj4OCcLU0162kAX9j9LWW62z3UiyMvg7uYNMr2Pl4rr8n3zl9Vd9391ftiJ79kN-Yqs1FT4oxrg_RaBfJccta8s6-9bRQMSfseK507dIZLWCcGRiDX24bqLm7oJVy" alt="Responsive Landing Page 3D preview" class="w-full h-56 object-cover">
+              </div>
+              <header class="flex flex-col gap-gutter-xs">
+                <span class="font-label text-label-md text-primary" data-design-text-token="label-md">IN PROGRESS</span>
+                <h3 class="font-title text-title-lg text-on-surface" data-design-text-token="title-lg">Responsive Landing Page</h3>
+                <p class="font-label text-label-md text-secondary" data-design-text-token="label-md">Responsive · UI Design</p>
+              </header>
+              <p class="font-body text-body-md text-on-surface-variant text-pretty" data-design-text-token="body-md">
+                Modern multi-device landing page focused on fluid typography, accessible contrast, and smooth 3D card interactions.
+              </p>
+            </div>
+            <footer class="flex items-center justify-between gap-gutter-sm pt-gutter-md border-t border-outline-variant">
+              <button type="button" onclick="openProjectModal(&#39;Responsive Landing Page&#39;, &#39;Responsive · UI Design&#39;, &#39;Designed with mobile-first Flexbox and CSS Grid breakpoints to adapt cleanly across phone, tablet, and desktop viewports.&#39;, &#39;In Progress&#39;)" class="inline-flex items-center gap-gutter-xs px-gutter-md py-2 rounded-full bg-primary-container text-on-primary-container font-label text-label-lg hover:bg-primary hover:text-on-primary transition-colors duration-state-change ease-state-change">
+                <span data-design-text-token="label-lg">Inspect Project</span>
+              </button>
+              <span class="font-label text-label-md text-outline tabular-nums" data-design-text-token="label-md">2026</span>
+            </footer>
+          </article>
+
+        </div>
+      </section>
+
+      <!-- Contact & Inquiry Section -->
+      <section id="contact" class="max-w-7xl mx-auto px-gutter-lg md:px-page-margin py-section border-t border-outline-variant">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-gutter-xl items-start">
+
+          <div class="lg:col-span-5 flex flex-col gap-gutter-lg">
+            <span class="font-label text-label-md text-primary" data-design-text-token="label-md">HAVE A PROJECT OR OPPORTUNITY?</span>
+            <h2 class="font-display text-display-md-mobile md:text-display-md text-on-surface text-balance" data-design-text-token="display-md">
+              Let&#39;s create something great.
+            </h2>
+            <p class="font-body text-body-md text-on-surface-variant max-w-prose" data-design-text-token="body-md">
+              Looking for a motivated front-end developer or want to collaborate on a web project? Say hello and let&#39;s build something memorable.
+            </p>
+
+            <div class="flex flex-wrap items-center gap-gutter-md">
+              <button id="copy-email-btn" type="button" data-component-id="button-secondary" data-component-type="button" data-component-variant="secondary" class="inline-flex items-center justify-center gap-gutter-sm px-gutter-lg py-3 rounded-full bg-surface-container-high border border-outline-variant text-on-surface font-label text-label-lg transition-colors duration-state-change ease-state-change hover:border-primary hover:text-primary focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary">
+                <span class="material-symbols-outlined text-title-lg" aria-hidden="true">content_copy</span>
+                <span id="copy-email-label" data-design-text-token="label-lg">Copy Email</span>
+              </button>
+              <span class="font-label text-label-md text-outline" data-design-text-token="label-md">abdullah@example.com</span>
+            </div>
+          </div>
+
+          <div class="lg:col-span-7">
+            <form id="contact-form" class="rounded-xl bg-surface-container border border-outline-variant p-gutter-xl flex flex-col gap-gutter-lg">
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-gutter-lg">
+                <!-- COMPONENT: input-field-text -->
+                <label data-component-id="input-field-text" data-component-type="input-field" data-component-variant="text" class="flex flex-col gap-gutter-xs w-full">
+                  <span class="font-label text-label-md text-on-surface-variant" data-design-text-token="label-md">Your Name</span>
+                  <input required type="text" placeholder="Abdullah" aria-describedby="contact-name-hint" class="w-full rounded bg-surface-container-lowest border border-outline-variant px-gutter-md py-3 font-body text-body-md text-on-surface placeholder:text-outline focus:border-primary focus:ring-1 focus:ring-primary focus:outline-none">
+                  <span id="contact-name-hint" class="font-body text-label-md text-outline" data-design-text-token="label-md">How should I address you?</span>
+                </label>
+
+                <!-- COMPONENT: input-field-icon -->
+                <label data-component-id="input-field-icon" data-component-type="input-field" data-component-variant="with-icon" class="flex flex-col gap-gutter-xs w-full">
+                  <span class="font-label text-label-md text-on-surface-variant" data-design-text-token="label-md">Email Address</span>
+                  <div class="relative flex items-center">
+                    <span aria-hidden="true" class="material-symbols-outlined text-title-lg text-outline absolute left-3.5 pointer-events-none">mail</span>
+                    <input required type="email" placeholder="you@example.com" inputmode="email" aria-describedby="contact-email-hint" class="w-full rounded bg-surface-container-lowest border border-outline-variant pl-11 pr-gutter-md py-3 font-body text-body-md text-on-surface placeholder:text-outline focus:border-primary focus:ring-1 focus:ring-primary focus:outline-none">
+                  </div>
+                  <span id="contact-email-hint" class="font-body text-label-md text-outline" data-design-text-token="label-md">I reply within 24 hours.</span>
+                </label>
+              </div>
+
+              <label class="flex flex-col gap-gutter-xs w-full">
+                <span class="font-label text-label-md text-on-surface-variant" data-design-text-token="label-md">Message</span>
+                <textarea required rows="3" placeholder="Tell me about your project or opportunity..." class="w-full rounded bg-surface-container-lowest border border-outline-variant px-gutter-md py-3 font-body text-body-md text-on-surface placeholder:text-outline focus:border-primary focus:ring-1 focus:ring-primary focus:outline-none"></textarea>
+              </label>
+
+              <div class="flex flex-wrap items-center justify-between gap-gutter-md">
+                <button type="submit" data-component-id="button-with-icon" data-component-type="button" data-component-variant="with-icon" class="inline-flex items-center justify-center gap-gutter-sm px-gutter-lg py-3 rounded-full bg-primary-container text-on-primary-container font-label text-label-lg transition-transform duration-state-change ease-state-change hover:scale-[1.02] hover:bg-primary hover:text-on-primary focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary active:scale-[0.98]">
+                  <span class="material-symbols-outlined text-title-lg" aria-hidden="true">send</span>
+                  <span data-design-text-token="label-lg">Say Hello</span>
+                </button>
+                <span id="form-status" class="font-label text-label-md text-tertiary hidden" role="status" data-design-text-token="label-md">Message sent — thanks for reaching out!</span>
+              </div>
+            </form>
+          </div>
+
+        </div>
+      </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="border-t border-outline-variant bg-surface-container-lowest">
+      <div class="max-w-7xl mx-auto px-gutter-lg md:px-page-margin py-gutter-lg flex flex-col sm:flex-row items-center justify-between gap-gutter-md">
+        <span class="font-label text-label-md text-outline" data-design-text-token="label-md">© 2026 Abdullah.dev</span>
+        <div class="flex items-center gap-gutter-lg">
+          <a href="#work" class="font-label text-label-md text-on-surface-variant hover:text-primary" data-design-text-token="label-md">GitHub</a>
+          <a href="#contact" class="font-label text-label-md text-on-surface-variant hover:text-primary" data-design-text-token="label-md">LinkedIn</a>
+          <a href="#hero" class="font-label text-label-md text-primary hover:underline" data-design-text-token="label-md">Back to Top</a>
+        </div>
+      </div>
+    </footer>
+
+  </div>
+
+  <!-- Project Inspector Modal -->
+  <div id="project-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-surface-container-lowest/80 p-gutter-lg" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <div class="w-full max-w-lg rounded-xl bg-surface-container border border-outline-variant p-gutter-xl flex flex-col gap-gutter-md">
+      <div class="flex items-start justify-between gap-gutter-md">
+        <div class="flex flex-col gap-gutter-xs">
+          <h3 id="modal-title" class="font-headline text-headline-md text-on-surface" data-design-text-token="headline-md">Project Title</h3>
+          <p id="modal-stack" class="font-label text-label-md text-primary" data-design-text-token="label-md">Stack</p>
+        </div>
+        <button id="close-modal-btn" type="button" aria-label="Close modal" class="inline-flex items-center justify-center w-9 h-9 rounded-full bg-surface-container-high border border-outline-variant text-on-surface hover:border-primary hover:text-primary">
+          <span class="material-symbols-outlined text-title-lg" aria-hidden="true">close</span>
+        </button>
+      </div>
+      <p id="modal-desc" class="font-body text-body-md text-on-surface-variant" data-design-text-token="body-md"></p>
+      <div class="flex items-center justify-between pt-gutter-md border-t border-outline-variant">
+        <span id="modal-metric" class="font-label text-label-md text-tertiary tabular-nums" data-design-text-token="label-md"></span>
+        <button type="button" onclick="closeProjectModal()" class="inline-flex items-center justify-center px-gutter-lg py-2 rounded-full bg-primary-container text-on-primary-container font-label text-label-lg hover:bg-primary hover:text-on-primary">
+          <span data-design-text-token="label-lg">Done</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      // 1. Interactive 3D Hero Scene (Three.js with 2D Isometric Fallback)
+      const canvas = document.getElementById('hero-3d-canvas');
+      const fpsLabel = document.getElementById('render-fps-label');
+      const resetBtn = document.getElementById('reset-3d-btn');
+      const modeBtns = document.querySelectorAll('.mode-btn');
+
+      let renderMode = 'wireframe';
+      let targetRotX = 0.35;
+      let targetRotY = 0.5;
+      let isDragging = false;
+      let lastX = 0;
+      let lastY = 0;
+
+      function updateModeUI(selectedMode) {
+        renderMode = selectedMode;
+        modeBtns.forEach((btn) => {
+          const active = btn.dataset.renderMode === selectedMode;
+          btn.setAttribute('aria-pressed', active ? 'true' : 'false');
+          if (active) {
+            btn.className = 'mode-btn inline-flex items-center px-gutter-md py-1.5 rounded-full bg-secondary-container border border-primary text-on-secondary-container font-label text-label-md transition-colors duration-state-change ease-state-change';
+          } else {
+            btn.className = 'mode-btn inline-flex items-center px-gutter-md py-1.5 rounded-full bg-surface-container-high border border-outline-variant text-on-surface-variant font-label text-label-md transition-colors duration-state-change ease-state-change hover:border-primary hover:text-primary';
+          }
+        });
+      }
+
+      canvas.addEventListener('pointerdown', (e) => {
+        isDragging = true;
+        lastX = e.clientX;
+        lastY = e.clientY;
+      });
+      window.addEventListener('pointerup', () => { isDragging = false; });
+      window.addEventListener('pointermove', (e) => {
+        if (!isDragging) return;
+        const dx = e.clientX - lastX;
+        const dy = e.clientY - lastY;
+        lastX = e.clientX;
+        lastY = e.clientY;
+        targetRotY += dx * 0.008;
+        targetRotX += dy * 0.008;
+      });
+
+      resetBtn.addEventListener('click', () => {
+        targetRotX = 0.35;
+        targetRotY = 0.5;
+      });
+
+      let threeReady = false;
+      if (typeof THREE !== 'undefined') {
+        try {
+          const width = canvas.clientWidth || 560;
+          const height = canvas.clientHeight || 380;
+          const renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true, alpha: true });
+          renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+          renderer.setSize(width, height, false);
+
+          const scene = new THREE.Scene();
+          const camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 100);
+          camera.position.z = 5.2;
+
+          const group = new THREE.Group();
+          scene.add(group);
+
+          // Core Icosahedron
+          const geo = new THREE.IcosahedronGeometry(1.35, 1);
+          const wireMat = new THREE.MeshBasicMaterial({ color: 0xD3BBFF, wireframe: true });
+          const solidMat = new THREE.MeshStandardMaterial({
+            color: 0x6D28D9,
+            roughness: 0.25,
+            metalness: 0.7,
+            flatShading: true
+          });
+          const coreMesh = new THREE.Mesh(geo, wireMat);
+          group.add(coreMesh);
+
+          // Orbital Rings
+          const ringGeo1 = new THREE.TorusGeometry(2.05, 0.025, 12, 72);
+          const ringMat1 = new THREE.MeshBasicMaterial({ color: 0xFFB68B });
+          const ring1 = new THREE.Mesh(ringGeo1, ringMat1);
+          ring1.rotation.x = Math.PI / 3;
+          group.add(ring1);
+
+          const ringGeo2 = new THREE.TorusGeometry(2.35, 0.018, 12, 72);
+          const ringMat2 = new THREE.MeshBasicMaterial({ color: 0xC7AAFF });
+          const ring2 = new THREE.Mesh(ringGeo2, ringMat2);
+          ring2.rotation.y = Math.PI / 4;
+          group.add(ring2);
+
+          // Particle Cloud
+          const count = 240;
+          const positions = new Float32Array(count * 3);
+          for (let i = 0; i < count; i++) {
+            const theta = Math.random() * Math.PI * 2;
+            const phi = Math.acos(2 * Math.random() - 1);
+            const r = 1.8 + Math.random() * 1.4;
+            positions[i * 3] = r * Math.sin(phi) * Math.cos(theta);
+            positions[i * 3 + 1] = r * Math.sin(phi) * Math.sin(theta);
+            positions[i * 3 + 2] = r * Math.cos(phi);
+          }
+          const pGeo = new THREE.BufferGeometry();
+          pGeo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+          const pMat = new THREE.PointsMaterial({ color: 0xD3BBFF, size: 0.055 });
+          const particles = new THREE.Points(pGeo, pMat);
+          group.add(particles);
+
+          const ambient = new THREE.AmbientLight(0xffffff, 0.7);
+          const point = new THREE.PointLight(0xD3BBFF, 1.8);
+          point.position.set(4, 4, 5);
+          scene.add(ambient, point);
+
+          modeBtns.forEach((btn) => {
+            btn.addEventListener('click', () => {
+              const mode = btn.dataset.renderMode;
+              updateModeUI(mode);
+              if (mode === 'wireframe') {
+                coreMesh.visible = true;
+                coreMesh.material = wireMat;
+                particles.visible = true;
+              } else if (mode === 'solid') {
+                coreMesh.visible = true;
+                coreMesh.material = solidMat;
+                particles.visible = true;
+              } else {
+                coreMesh.visible = false;
+                particles.visible = true;
+              }
+            });
+          });
+
+          function animate() {
+            requestAnimationFrame(animate);
+            if (!isDragging) targetRotY += 0.004;
+            group.rotation.x += (targetRotX - group.rotation.x) * 0.08;
+            group.rotation.y += (targetRotY - group.rotation.y) * 0.08;
+            ring1.rotation.z += 0.006;
+            ring2.rotation.x -= 0.005;
+            renderer.render(scene, camera);
+          }
+          animate();
+          threeReady = true;
+        } catch (err) {
+          threeReady = false;
+        }
+      }
+
+      // 2D Canvas 3D-Projection Fallback if WebGL unavailable
+      if (!threeReady) {
+        fpsLabel.textContent = '3D CANVAS · ACTIVE';
+        const ctx = canvas.getContext('2d');
+        const w = canvas.width = canvas.clientWidth || 560;
+        const h = canvas.height = canvas.clientHeight || 380;
+        const phi = (1 + Math.sqrt(5)) / 2;
+        const rawVerts = [
+          [-1, phi, 0], [1, phi, 0], [-1, -phi, 0], [1, -phi, 0],
+          [0, -1, phi], [0, 1, phi], [0, -1, -phi], [0, 1, -phi],
+          [phi, 0, -1], [phi, 0, 1], [-phi, 0, -1], [-phi, 0, 1]
+        ];
+        const edges = [
+          [0,1],[0,5],[0,7],[0,10],[0,11],[1,5],[1,7],[1,8],[1,9],
+          [2,3],[2,4],[2,6],[2,10],[2,11],[3,4],[3,6],[3,8],[3,9],
+          [4,5],[4,9],[4,11],[5,9],[5,11],[6,7],[6,8],[6,10],[7,8],[7,10],[8,9],[10,11]
+        ];
+        modeBtns.forEach((btn) => {
+          btn.addEventListener('click', () => updateModeUI(btn.dataset.renderMode));
+        });
+        function drawFallback() {
+          if (!isDragging) targetRotY += 0.008;
+          ctx.clearRect(0, 0, w, h);
+          const cx = w / 2, cy = h / 2, scale = 72;
+          const cosY = Math.cos(targetRotY), sinY = Math.sin(targetRotY);
+          const cosX = Math.cos(targetRotX), sinX = Math.sin(targetRotX);
+          const pts = rawVerts.map(([x, y, z]) => {
+            const x1 = x * cosY - z * sinY;
+            const z1 = x * sinY + z * cosY;
+            const y2 = y * cosX - z1 * sinX;
+            const z2 = y * sinX + z1 * cosX;
+            const p = 4 / (4 - z2 * 0.4);
+            return [cx + x1 * scale * p, cy + y2 * scale * p];
+          });
+          ctx.strokeStyle = renderMode === 'particles' ? '#6D28D9' : '#D3BBFF';
+          ctx.lineWidth = 1.6;
+          if (renderMode !== 'particles') {
+            edges.forEach(([a, b]) => {
+              ctx.beginPath();
+              ctx.moveTo(pts[a][0], pts[a][1]);
+              ctx.lineTo(pts[b][0], pts[b][1]);
+              ctx.stroke();
+            });
+          }
+          pts.forEach(([px, py]) => {
+            ctx.fillStyle = '#FFB68B';
+            ctx.beginPath();
+            ctx.arc(px, py, 3.5, 0, Math.PI * 2);
+            ctx.fill();
+          });
+          requestAnimationFrame(drawFallback);
+        }
+        drawFallback();
+      }
+
+      // 2. CSS 3D Perspective Tilt on Project Cards
+      document.querySelectorAll('[data-tilt-card]').forEach((card) => {
+        card.addEventListener('pointermove', (e) => {
+          const rect = card.getBoundingClientRect();
+          const x = (e.clientX - rect.left) / rect.width - 0.5;
+          const y = (e.clientY - rect.top) / rect.height - 0.5;
+          card.style.transform = `rotateX(${(-y * 10).toFixed(2)}deg) rotateY(${(x * 10).toFixed(2)}deg) translateY(-4px)`;
+        });
+        card.addEventListener('pointerleave', () => {
+          card.style.transform = 'rotateX(0deg) rotateY(0deg) translateY(0px)';
+        });
+      });
+
+      // 3. Project Category Filtering
+      const filterChips = document.querySelectorAll('.filter-chip');
+      const projectCards = document.querySelectorAll('.project-card');
+      filterChips.forEach((chip) => {
+        chip.addEventListener('click', () => {
+          const filter = chip.dataset.filter;
+          filterChips.forEach((c) => {
+            const active = c.dataset.filter === filter;
+            c.setAttribute('aria-pressed', active ? 'true' : 'false');
+            c.className = active
+              ? 'filter-chip inline-flex items-center px-gutter-md py-1.5 rounded-full bg-secondary-container border border-primary text-on-secondary-container font-label text-label-md transition-colors duration-state-change ease-state-change'
+              : 'filter-chip inline-flex items-center px-gutter-md py-1.5 rounded-full bg-surface-container-high border border-outline-variant text-on-surface-variant font-label text-label-md transition-colors duration-state-change ease-state-change hover:border-primary hover:text-primary';
+          });
+          projectCards.forEach((card) => {
+            const show = filter === 'all' || card.dataset.category === filter;
+            card.classList.toggle('hidden', !show);
+          });
+        });
+      });
+
+      // 4. Copy Email & Form Submission
+      const copyBtn = document.getElementById('copy-email-btn');
+      const copyLabel = document.getElementById('copy-email-label');
+      copyBtn.addEventListener('click', () => {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText('abdullah@example.com').catch(() => {});
+        }
+        copyLabel.textContent = 'Copied Email';
+        setTimeout(() => { copyLabel.textContent = 'Copy Email'; }, 2000);
+      });
+
+      const form = document.getElementById('contact-form');
+      const formStatus = document.getElementById('form-status');
+      form.addEventListener('submit', (e) => {
+        e.preventDefault();
+        formStatus.classList.remove('hidden');
+        form.reset();
+      });
+
+      // 5. Project Inspector Modal
+      const modal = document.getElementById('project-modal');
+      const closeModalBtn = document.getElementById('close-modal-btn');
+      window.openProjectModal = function (title, stack, desc, metric) {
+        document.getElementById('modal-title').textContent = title;
+        document.getElementById('modal-stack').textContent = stack;
+        document.getElementById('modal-desc').textContent = desc;
+        document.getElementById('modal-metric').textContent = metric;
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+      };
+      window.closeProjectModal = function () {
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+      };
+      closeModalBtn.addEventListener('click', window.closeProjectModal);
+      modal.addEventListener('click', (e) => {
+        if (e.target === modal) window.closeProjectModal();
+      });
+    })();
+  </script>
+
+
+</body></html>
